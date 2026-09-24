@@ -492,6 +492,121 @@ body {
   color: var(--warn);
 }
 
+/* 条带编辑 */
+.strip-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: var(--ink);
+  cursor: pointer;
+  user-select: none;
+}
+
+.strip-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.strip-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: #fbfcfe;
+}
+
+.strip-row label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.strip-row select {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 3px 6px;
+  font-size: 0.88rem;
+  font-family: inherit;
+  background: #fff;
+  cursor: pointer;
+}
+
+.strip-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.strip-preview {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  min-width: 5em;
+}
+
+.add-strip {
+  align-self: flex-start;
+}
+
+/* 条带落位证据 */
+.strip-block {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  background: #fbfcfe;
+}
+
+.strip-block:last-child {
+  margin-bottom: 0;
+}
+
+.strip-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.strip-name {
+  font-weight: 700;
+}
+
+.strip-angles {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.strip-line {
+  margin: 2px 0;
+  font-size: 0.9rem;
+}
+
+.strip-table {
+  margin-top: 8px;
+}
+
+.tag-strip {
+  display: inline-block;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: var(--accent);
+  border: 1px solid #c7d7fe;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .page-foot {
   text-align: center;
   color: var(--muted);

@@ -9,6 +9,7 @@ import {
   formatAngle,
   type Angle,
 } from './angles';
+import type { StripPlacement } from './solve';
 
 export interface RuleCheck {
   id: string;
@@ -182,4 +183,61 @@ export function buildRuleChecks(original: readonly Angle[], repaired: readonly A
   }
 
   return checks;
+}
+
+/**
+ * 条带约束证据（仅条带模式）：逐条核对每条条带的原始区间、采用区间与镜像位置，
+ * 并给出逐层角度证据；同时核验各条带采用区间互不重叠。
+ * 所有条目都应在修复结果上通过；若未通过，页面会如实标出（便于发现求解器缺陷）。
+ */
+export function buildStripCheck(
+  original: readonly Angle[],
+  repaired: readonly Angle[],
+  placements: readonly StripPlacement[],
+): RuleCheck {
+  const n = repaired.length;
+  const details: string[] = [];
+  let pass = true;
+
+  placements.forEach((pl, idx) => {
+    const len = pl.angles.length;
+    let ok = true;
+    const layers: string[] = [];
+    for (let k = 0; k < len; k++) {
+      const o = original[pl.originalStart + k];
+      const adopted = repaired[pl.placedStart + k];
+      const mirror = repaired[n - 1 - (pl.placedStart + k)];
+      if (o !== pl.angles[k] || adopted !== pl.angles[k] || mirror !== pl.angles[k]) ok = false;
+      layers.push(
+        `　第 ${k + 1} 层：原第 ${pl.originalStart + k + 1} 层 ${formatAngle(o)} →` +
+          ` 采用第 ${pl.placedStart + k + 1} 层 ${formatAngle(adopted)} →` +
+          ` 镜像第 ${n - pl.placedStart - k} 层 ${formatAngle(mirror)}`,
+      );
+    }
+    if (!ok) pass = false;
+    details.push(
+      `条带 ${idx + 1}：原第 ${pl.originalStart + 1}–${pl.originalEnd} 层` +
+        ` [${pl.angles.map(formatAngle).join(' → ')}] 完整连续落于首半第 ${pl.placedStart + 1}–${pl.placedEnd} 层` +
+        `（镜像第 ${pl.mirrorStart + 1}–${pl.mirrorEnd} 层）${ok ? '。' : '——逐层角度不一致！'}`,
+    );
+    details.push(...layers);
+  });
+
+  const sorted = [...placements].sort((a, b) => a.placedStart - b.placedStart);
+  let overlapFree = true;
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i].placedStart < sorted[i - 1].placedEnd) overlapFree = false;
+  }
+  if (!overlapFree) pass = false;
+  details.push(`各条带采用区间互不重叠：${overlapFree ? '满足。' : '不满足！'}`);
+
+  return {
+    id: 'strip-preserved',
+    title: '条带完整连续保留（首半落位互不重叠）',
+    pass,
+    summary: pass
+      ? `${placements.length} 条条带全部完整连续保留`
+      : `${placements.length} 条条带中存在未完整保留者`,
+    details,
+  };
 }
