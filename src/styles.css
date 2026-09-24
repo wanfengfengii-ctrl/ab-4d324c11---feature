@@ -498,3 +498,268 @@ body {
   font-size: 0.8rem;
   margin-top: 24px;
 }
+
+/* 工艺条带编辑面板 */
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.88rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.switch input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.strip-intro {
+  margin-top: 0;
+}
+
+.strip-warn {
+  color: var(--warn);
+  font-size: 0.86rem;
+  margin: 8px 0 0;
+}
+
+.strip-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.strip-row {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #fbfcfe;
+}
+
+.strip-fields {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.strip-no {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.strip-fields label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.86rem;
+  color: var(--muted);
+}
+
+.strip-fields select {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 3px 6px;
+  font-size: 0.88rem;
+  font-family: inherit;
+  background: #fff;
+}
+
+.strip-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.strip-range {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.strip-pattern {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.strip-pattern-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.strip-arrow {
+  color: var(--muted);
+  margin: 0 2px;
+}
+
+.add-strip {
+  align-self: flex-start;
+  border-style: dashed;
+}
+
+/* 条带落位证据 */
+.strip-card {
+  border-color: #c4b5fd;
+}
+
+.strip-evidence-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.strip-evidence {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.strip-evidence summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  cursor: pointer;
+  list-style: none;
+  background: #f5f3ff;
+  flex-wrap: wrap;
+}
+
+.strip-evidence summary::-webkit-details-marker {
+  display: none;
+}
+
+.strip-evidence summary::before {
+  content: '▸';
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.strip-evidence[open] summary::before {
+  content: '▾';
+}
+
+.strip-badge {
+  background: var(--c90);
+  color: #fff;
+  font-size: 0.78rem;
+  padding: 1px 10px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.strip-evidence-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.strip-evidence-table th,
+.strip-evidence-table td {
+  border-top: 1px solid var(--line);
+  padding: 8px 12px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.strip-evidence-table th {
+  width: 15em;
+  color: var(--muted);
+  font-weight: 600;
+  background: #fafaff;
+  white-space: nowrap;
+}
+
+.layer-angle-table {
+  border-collapse: collapse;
+  font-size: 0.84rem;
+}
+
+.layer-angle-table th,
+.layer-angle-table td {
+  border: 1px solid var(--line);
+  padding: 4px 8px;
+  text-align: center;
+}
+
+.layer-angle-table thead th {
+  background: #f3f4f6;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.layer-angle-table td:first-child {
+  text-align: left;
+  color: var(--muted);
+  background: #fafaff;
+  white-space: nowrap;
+}
+
+.match-mark {
+  margin-left: 4px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.match-mark.ok {
+  color: var(--ok);
+}
+
+.match-mark.bad {
+  color: var(--bad);
+}
+
+.mirror-ref {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.mirror-pair {
+  display: inline-block;
+  margin: 2px 14px 2px 0;
+  background: #f5f3ff;
+  border-radius: 6px;
+  padding: 1px 8px;
+}
+
+/* 差异表与结果序列中的条带标记：改动行保留橙底，非改动条带行用紫底 */
+.diff-table tr.strip-row:not(.changed) td {
+  background: #f5f3ff;
+}
+
+.diff-table tr.changed.strip-row td {
+  background: #fff7ed;
+  box-shadow: inset 2px 0 0 var(--c90);
+}
+
+.tag-strip {
+  display: inline-block;
+  background: var(--c90);
+  color: #fff;
+  font-size: 0.74rem;
+  padding: 1px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.tag-strip-mirror {
+  display: inline-block;
+  border: 1px solid var(--c90);
+  color: var(--c90);
+  font-size: 0.74rem;
+  padding: 0 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.seq-item.strip-covered {
+  border-color: var(--c90);
+  box-shadow: inset 0 0 0 1px var(--c90);
+}

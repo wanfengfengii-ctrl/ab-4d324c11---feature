@@ -1,18 +1,52 @@
 import { useMemo, useState } from 'react';
 import { ResultView, type RunOutcome } from './components/ResultView';
 import { EXAMPLES, SequenceEditor } from './components/SequenceEditor';
-import { buildRuleChecks, parseSequence, solve, validateInput } from './solver';
+import { StripEditor } from './components/StripEditor';
+import {
+  buildRuleChecks,
+  parseSequence,
+  solve,
+  validateInput,
+  validateStrips,
+  type StripSpec,
+} from './solver';
 
 export default function App() {
   const [text, setText] = useState(EXAMPLES[0].text);
+  const [stripEnabled, setStripEnabled] = useState(false);
+  const [stripSpecs, setStripSpecs] = useState<StripSpec[]>([{ start: 0, length: 2 }]);
   const [outcome, setOutcome] = useState<RunOutcome | null>(null);
 
   // 输入实时解析（仅用于编辑反馈；综合时重新解析，保证结果与输入一致）
   const parsed = useMemo(() => parseSequence(text), [text]);
+  const inputErrors = useMemo(() => validateInput(parsed.sequence), [parsed.sequence]);
+  // 首半仅在参考铺层可解析且层数合法为偶数时有定义
+  const half =
+    parsed.errors.length === 0 && inputErrors.length === 0 && parsed.sequence.length % 2 === 0
+      ? parsed.sequence.length / 2
+      : null;
+
+  const stripCheck = useMemo(() => {
+    if (!stripEnabled || half === null) return { valid: false, errors: [] as string[], strips: [] };
+    return validateStrips(parsed.sequence, stripSpecs);
+  }, [stripEnabled, half, parsed.sequence, stripSpecs]);
 
   const handleTextChange = (next: string) => {
     setText(next);
     setOutcome(null); // 输入变更即清除旧结果，避免展示过期结论
+  };
+
+  const handleStripToggle = (enabled: boolean) => {
+    setStripEnabled(enabled);
+    if (enabled && stripSpecs.length === 0) {
+      setStripSpecs([{ start: 0, length: 2 }]);
+    }
+    setOutcome(null); // 模式切换即撤下旧综合结果
+  };
+
+  const handleStripChange = (specs: StripSpec[]) => {
+    setStripSpecs(specs);
+    setOutcome(null); // 条带编辑即撤下旧综合结果
   };
 
   const runSynthesis = () => {
@@ -21,14 +55,32 @@ export default function App() {
       setOutcome({ kind: 'invalid', problems: p.errors });
       return;
     }
-    const inputErrors = validateInput(p.sequence);
-    if (inputErrors.length > 0) {
-      setOutcome({ kind: 'invalid', problems: inputErrors });
+    const errs = validateInput(p.sequence);
+    if (errs.length > 0) {
+      setOutcome({ kind: 'invalid', problems: errs });
+      return;
+    }
+    if (stripEnabled) {
+      const sv = validateStrips(p.sequence, stripSpecs);
+      if (!sv.valid) {
+        setOutcome({ kind: 'invalid', problems: sv.errors });
+        return;
+      }
+      const result = solve(p.sequence, { strips: sv.strips });
+      if (result.status === 'infeasible') {
+        setOutcome({ kind: 'infeasible', reasons: result.reasons, sequence: p.sequence, stripMode: true });
+      } else {
+        setOutcome({
+          kind: 'ok',
+          solution: result,
+          checks: buildRuleChecks(result.original, result.repaired),
+        });
+      }
       return;
     }
     const result = solve(p.sequence);
     if (result.status === 'infeasible') {
-      setOutcome({ kind: 'infeasible', reasons: result.reasons, sequence: p.sequence });
+      setOutcome({ kind: 'infeasible', reasons: result.reasons, sequence: p.sequence, stripMode: false });
     } else {
       setOutcome({
         kind: 'ok',
@@ -52,12 +104,24 @@ export default function App() {
       <main>
         <SequenceEditor text={text} parsed={parsed} onTextChange={handleTextChange} />
 
+        <StripEditor
+          sequence={parsed.sequence}
+          half={half}
+          enabled={stripEnabled}
+          specs={stripSpecs}
+          problems={stripCheck.errors}
+          onToggle={handleStripToggle}
+          onChange={handleStripChange}
+        />
+
         <div className="run-bar">
           <button type="button" className="btn primary" onClick={runSynthesis}>
-            ▶ 启动综合
+            ▶ 启动综合{stripEnabled ? '（带条带约束）' : ''}
           </button>
           <span className="hint">
-            目标：依次最小化「改动位置数」与「相邻角度变化次数」，再取规定次序的字典序最小方案
+            {stripEnabled
+              ? '同一次全局搜索中联合裁决条带落位、改动位置数、相邻变化次数与字典序'
+              : '目标：依次最小化「改动位置数」与「相邻角度变化次数」，再取规定次序的字典序最小方案'}
           </span>
         </div>
 
@@ -65,7 +129,8 @@ export default function App() {
       </main>
 
       <footer className="page-foot">
-        求解器：对称折半动态规划（全局精确）· 规则证据可逐条展开复核
+        求解器：对称折半动态规划（全局精确）{stripEnabled ? '，条带落位与两级目标同搜索联合裁决' : ''}·
+        规则证据可逐条展开复核
       </footer>
     </div>
   );
